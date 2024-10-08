@@ -3,6 +3,7 @@ package nuber.students;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
@@ -23,9 +24,13 @@ import java.util.concurrent.Callable;
  *
  */
 public class Booking implements Callable<BookingResult>{
-
+	
+	private static final AtomicInteger counter = new AtomicInteger();
+	
 	NuberDispatch dispatch;
 	Passenger passenger;
+	String driverName;
+	int id = counter.incrementAndGet();
 		
 	/**
 	 * Creates a new booking for a given Nuber dispatch and passenger, noting that no
@@ -39,6 +44,9 @@ public class Booking implements Callable<BookingResult>{
 	{
 		this.dispatch = dispatch;
 		this.passenger = passenger;
+		this.driverName = null;
+		
+		id = 0;
 	}
 	
 	/**
@@ -66,9 +74,12 @@ public class Booking implements Callable<BookingResult>{
 		
 			try {
 				driver = this.dispatch.getDriver();
+				if(driver != null)
+					this.driverName = driver.name;
 			} catch(InterruptedException e) {
 				System.out.println("No driver is available");
 			}
+			
 		
 		// Pick up passenger (cancel trip if thread is interrupted)
 		try {
@@ -78,6 +89,8 @@ public class Booking implements Callable<BookingResult>{
 			dispatch.addDriver(driver);
 			return null;
 		}
+		
+
 		
 		// Drive to destination (Cancel trip if thread is interrupted)
 		try {
@@ -91,8 +104,10 @@ public class Booking implements Callable<BookingResult>{
 		LocalDateTime endTime = getCurrentTimestamp();
 		long totalTime = Duration.between(startTime, endTime).toMillis();
 		dispatch.addDriver(driver);
-		
-		return new BookingResult(Thread.currentThread().getId(), this.passenger, driver, totalTime);	
+				
+		BookingResult br = new BookingResult(id, this.passenger, driver, totalTime);
+		System.out.println(this.toString());
+		return br;
 	}
 	
 	private LocalDateTime getCurrentTimestamp() {
@@ -111,8 +126,12 @@ public class Booking implements Callable<BookingResult>{
 	 */
 	@Override
 	public String toString()
-	{
-		return "toString not yet implemented" + passenger;
+	{	
+		String returnString = "";
+		returnString = returnString.concat(String.valueOf(this.id)).concat(" : ");
+		returnString = returnString.concat(this.driverName == null ? "null" : this.driverName).concat(" : ");
+		returnString = returnString.concat(this.passenger.name == null ? "null" : this.passenger.name);
+		return returnString;
 	}
 
 }

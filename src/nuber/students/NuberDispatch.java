@@ -24,6 +24,7 @@ public class NuberDispatch {
 	private boolean logEvents = false;
 	private HashMap<String, NuberRegion> regions;
 	private BlockingQueue<Driver> drivers;
+	private BlockingQueue<Booking> bookingsAwaitingDriver;
 	
 	/**
 	 * Creates a new dispatch objects and instantiates the required regions and any other objects required.
@@ -55,8 +56,9 @@ public class NuberDispatch {
 	 */
 	public boolean addDriver(Driver newDriver)
 	{
+		boolean result = drivers.add(newDriver);
 		
-		return false;
+		return result;
 	}
 	
 	/**
@@ -69,7 +71,6 @@ public class NuberDispatch {
 	 */
 	public Driver getDriver() throws InterruptedException
 	{
-		System.out.println(drivers.take());
 		return drivers.take();
 	}
 
@@ -120,12 +121,14 @@ public class NuberDispatch {
 	 */
 	public int getBookingsAwaitingDriver()
 	{
+		return bookingsAwaitingDriver.size();
 	}
 	
 	/**
 	 * Tells all regions to finish existing bookings already allocated, and stop accepting new bookings
 	 */
 	public void shutdown() {
+		
 	}
 
 }
