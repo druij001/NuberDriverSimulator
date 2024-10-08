@@ -57,7 +57,7 @@ public class NuberRegion {
 	public Future<BookingResult> bookPassenger(Passenger waitingPassenger)
 	{		
 		if (this.isShutdown) {
-			System.out.println("booking for " + waitingPassenger.name + " has ben rejected");
+			this.dispatch.logEvent(null, "booking for " + waitingPassenger.name + " has ben rejected");
 			return null;
 		}
 		
@@ -72,6 +72,7 @@ public class NuberRegion {
 	 */
 	public void shutdown()
 	{
+		this.dispatch.logEvent(null, this.regionName + " is shutting down");
 		executorPool.shutdown();
 		this.isShutdown = true;
 	}

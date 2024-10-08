@@ -30,7 +30,7 @@ public class Booking implements Callable<BookingResult>{
 	NuberDispatch dispatch;
 	Passenger passenger;
 	String driverName;
-	int id = counter.incrementAndGet();
+	int id;
 		
 	/**
 	 * Creates a new booking for a given Nuber dispatch and passenger, noting that no
@@ -46,7 +46,7 @@ public class Booking implements Callable<BookingResult>{
 		this.passenger = passenger;
 		this.driverName = null;
 		
-		id = 0;
+		id = counter.incrementAndGet();
 	}
 	
 	/**
@@ -73,19 +73,21 @@ public class Booking implements Callable<BookingResult>{
 		LocalDateTime startTime = getCurrentTimestamp();
 		
 			try {
+				dispatch.logEvent(this, "Starting booking, getting driver");
 				driver = this.dispatch.getDriver();
 				if(driver != null)
 					this.driverName = driver.name;
 			} catch(InterruptedException e) {
-				System.out.println("No driver is available");
+				dispatch.logEvent(this, "The booking was interrupted while waiting for a driver");
 			}
 			
 		
 		// Pick up passenger (cancel trip if thread is interrupted)
 		try {
+			dispatch.logEvent(this, "Starting, on way to passenger");
 			driver.pickUpPassenger(this.passenger);
 		} catch (InterruptedException e) {
-			System.out.println("The driver was interrupted while picking up passenger");
+			dispatch.logEvent(this, "The booking was interrupted while picking up the passenger");
 			dispatch.addDriver(driver);
 			return null;
 		}
@@ -94,19 +96,24 @@ public class Booking implements Callable<BookingResult>{
 		
 		// Drive to destination (Cancel trip if thread is interrupted)
 		try {
+			dispatch.logEvent(this, "Collected passenger, on way to destination");
 			driver.driveToDestination();
 		} catch(InterruptedException e) {
-			System.out.println("The driver was interrupted while driving to the destination");
+			dispatch.logEvent(this, "The booking was interrupted while driving to the destination");
 			dispatch.addDriver(driver);
 			return null;
 		}
 		
+		// Driver has arrived at destination
 		LocalDateTime endTime = getCurrentTimestamp();
 		long totalTime = Duration.between(startTime, endTime).toMillis();
+		
+		// Add the driver back to the dispatch
 		dispatch.addDriver(driver);
-				
 		BookingResult br = new BookingResult(id, this.passenger, driver, totalTime);
-		System.out.println(this.toString());
+
+		dispatch.logEvent(this, "At destination, driver is now free");
+				
 		return br;
 	}
 	

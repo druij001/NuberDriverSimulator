@@ -24,7 +24,7 @@ public class NuberDispatch {
 	private boolean logEvents = false;
 	private HashMap<String, NuberRegion> regions;
 	private BlockingQueue<Driver> drivers;
-	private BlockingQueue<Booking> bookingsAwaitingDriver;
+	private int bookingsAwaitingDriver;
 	
 	/**
 	 * Creates a new dispatch objects and instantiates the required regions and any other objects required.
@@ -37,13 +37,15 @@ public class NuberDispatch {
 	{
 		this.logEvents = logEvents;
 		this.regions = new HashMap<String, NuberRegion>();
-		this.drivers = new ArrayBlockingQueue(MAX_DRIVERS);
+		this.drivers = new ArrayBlockingQueue<Driver>(MAX_DRIVERS);
+		this.bookingsAwaitingDriver = 0;
 		
 		// Create a HashMap of regions
+		this.logEvent(null, "Creating ".concat(String.valueOf(regionInfo.size()).concat(" regions")));
 		for (Entry<String, Integer> r : regionInfo.entrySet()) {
-			System.out.println(r.getKey());
 			this.regions.put(r.getKey(), new NuberRegion(this, r.getKey(), r.getValue()));
 		}	
+		this.logEvent(null, "Done creating ".concat(String.valueOf(regionInfo.size()).concat(" regions")));
 	}
 	
 	/**
@@ -71,7 +73,12 @@ public class NuberDispatch {
 	 */
 	public Driver getDriver() throws InterruptedException
 	{
-		return drivers.take();
+		this.bookingsAwaitingDriver ++;
+
+		Driver d = this.drivers.take();
+		
+		this.bookingsAwaitingDriver --;
+		return d;
 	}
 
 	/**
@@ -102,12 +109,11 @@ public class NuberDispatch {
 	 * @return returns a Future<BookingResult> object
 	 */
 	public Future<BookingResult> bookPassenger(Passenger passenger, String region) {
-		
 		NuberRegion r = regions.get(region);
 		
 		//Return null if an invalid string was passed in
 		if(r == null) return null;
-		
+				
 		// Otherwise book the passenger in and return the result
 		return r.bookPassenger(passenger);
 	}
@@ -121,14 +127,16 @@ public class NuberDispatch {
 	 */
 	public int getBookingsAwaitingDriver()
 	{
-		return bookingsAwaitingDriver.size();
+		return bookingsAwaitingDriver;
 	}
 	
 	/**
 	 * Tells all regions to finish existing bookings already allocated, and stop accepting new bookings
 	 */
 	public void shutdown() {
-		
+		this.logEvent(null, "The system is shutting down");
+		for (Entry<String, NuberRegion> r : this.regions.entrySet()) {
+			r.getValue().shutdown();
+		}
 	}
-
 }
