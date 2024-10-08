@@ -1,5 +1,9 @@
 package nuber.students;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.concurrent.Callable;
+
 /**
  * 
  * Booking represents the overall "job" for a passenger getting to their destination.
@@ -18,8 +22,10 @@ package nuber.students;
  * @author james
  *
  */
-public class Booking {
+public class Booking implements Callable<BookingResult>{
 
+	NuberDispatch dispatch;
+	Passenger passenger;
 		
 	/**
 	 * Creates a new booking for a given Nuber dispatch and passenger, noting that no
@@ -31,6 +37,8 @@ public class Booking {
 	 */
 	public Booking(NuberDispatch dispatch, Passenger passenger)
 	{
+		this.dispatch = dispatch;
+		this.passenger = passenger;
 	}
 	
 	/**
@@ -49,8 +57,46 @@ public class Booking {
 	 *
 	 * @return A BookingResult containing the final information about the booking 
 	 */
+	
+	@Override
 	public BookingResult call() {
-
+		
+		Driver driver = null;
+		LocalDateTime startTime = getCurrentTimestamp();
+		
+			try {
+				driver = this.dispatch.getDriver();
+			} catch(InterruptedException e) {
+				System.out.println("No driver is available");
+			}
+		
+		// Pick up passenger (cancel trip if thread is interrupted)
+		try {
+			driver.pickUpPassenger(this.passenger);
+		} catch (InterruptedException e) {
+			System.out.println("The driver was interrupted while picking up passenger");
+			dispatch.addDriver(driver);
+			return null;
+		}
+		
+		// Drive to destination (Cancel trip if thread is interrupted)
+		try {
+			driver.driveToDestination();
+		} catch(InterruptedException e) {
+			System.out.println("The driver was interrupted while driving to the destination");
+			dispatch.addDriver(driver);
+			return null;
+		}
+		
+		LocalDateTime endTime = getCurrentTimestamp();
+		long totalTime = Duration.between(startTime, endTime).toMillis();
+		dispatch.addDriver(driver);
+		
+		return new BookingResult(Thread.currentThread().getId(), this.passenger, driver, totalTime);	
+	}
+	
+	private LocalDateTime getCurrentTimestamp() {
+		return LocalDateTime.now();
 	}
 	
 	/***
@@ -66,6 +112,7 @@ public class Booking {
 	@Override
 	public String toString()
 	{
+		return "toString not yet implemented" + passenger;
 	}
 
 }

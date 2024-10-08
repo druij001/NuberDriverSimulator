@@ -1,5 +1,7 @@
 package nuber.students;
 
+import java.util.concurrent.Callable;
+
 public abstract class Person
 {
 	

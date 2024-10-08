@@ -1,7 +1,12 @@
 package nuber.students;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * The core Dispatch class that instantiates and manages everything for Nuber
@@ -17,6 +22,8 @@ public class NuberDispatch {
 	private final int MAX_DRIVERS = 999;
 	
 	private boolean logEvents = false;
+	private HashMap<String, NuberRegion> regions;
+	private BlockingQueue<Driver> drivers;
 	
 	/**
 	 * Creates a new dispatch objects and instantiates the required regions and any other objects required.
@@ -27,6 +34,15 @@ public class NuberDispatch {
 	 */
 	public NuberDispatch(HashMap<String, Integer> regionInfo, boolean logEvents)
 	{
+		this.logEvents = logEvents;
+		this.regions = new HashMap<String, NuberRegion>();
+		this.drivers = new ArrayBlockingQueue(MAX_DRIVERS);
+		
+		// Create a HashMap of regions
+		for (Entry<String, Integer> r : regionInfo.entrySet()) {
+			System.out.println(r.getKey());
+			this.regions.put(r.getKey(), new NuberRegion(this, r.getKey(), r.getValue()));
+		}	
 	}
 	
 	/**
@@ -39,6 +55,8 @@ public class NuberDispatch {
 	 */
 	public boolean addDriver(Driver newDriver)
 	{
+		
+		return false;
 	}
 	
 	/**
@@ -47,9 +65,12 @@ public class NuberDispatch {
 	 * Must be able to have drivers added from multiple threads.
 	 * 
 	 * @return A driver that has been removed from the queue
+	 * @throws InterruptedException 
 	 */
-	public Driver getDriver()
+	public Driver getDriver() throws InterruptedException
 	{
+		System.out.println(drivers.take());
+		return drivers.take();
 	}
 
 	/**
@@ -63,7 +84,7 @@ public class NuberDispatch {
 	public void logEvent(Booking booking, String message) {
 		
 		if (!logEvents) return;
-		
+			
 		System.out.println(booking + ": " + message);
 		
 	}
@@ -80,6 +101,14 @@ public class NuberDispatch {
 	 * @return returns a Future<BookingResult> object
 	 */
 	public Future<BookingResult> bookPassenger(Passenger passenger, String region) {
+		
+		NuberRegion r = regions.get(region);
+		
+		//Return null if an invalid string was passed in
+		if(r == null) return null;
+		
+		// Otherwise book the passenger in and return the result
+		return r.bookPassenger(passenger);
 	}
 
 	/**

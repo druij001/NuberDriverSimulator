@@ -1,10 +1,14 @@
 package nuber.students;
 
-public class Driver extends Person {
+import java.util.Random;
 
+public class Driver extends Person{
+	
+	private Passenger passenger;
 	
 	public Driver(String driverName, int maxSleep)
 	{
+		super(driverName, maxSleep);
 	}
 	
 	/**
@@ -14,8 +18,13 @@ public class Driver extends Person {
 	 * @param newPassenger Passenger to collect
 	 * @throws InterruptedException
 	 */
-	public void pickUpPassenger(Passenger newPassenger)
+	public void pickUpPassenger(Passenger newPassenger) throws InterruptedException
 	{
+		// Store provided passenger as driver's current passenger
+		passenger = newPassenger;
+		
+		//Sleep thread for 0-maxDelay milliseconds
+		Thread.sleep(generateWaitTime(maxSleep));
 	}
 
 	/**
@@ -24,7 +33,13 @@ public class Driver extends Person {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public void driveToDestination() {
+	public void driveToDestination() throws InterruptedException{
+		Thread.sleep(passenger.getTravelTime());
 	}
+	
+	 public static int generateWaitTime(int max) {
+	        Random rand = new Random();
+	        return rand.nextInt(max+1);
+	    }
 	
 }

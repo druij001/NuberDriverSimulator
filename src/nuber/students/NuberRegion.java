@@ -1,5 +1,7 @@
 package nuber.students;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -13,11 +15,17 @@ import java.util.concurrent.Future;
  * 
  * Bookings do NOT have to be completed in FIFO order.
  * 
- * @author james
+ * @author James
  *
  */
 public class NuberRegion {
 
+	private int maxSimultaneousJobs;
+	private NuberDispatch dispatch;
+	public String regionName;
+	private boolean isShutdown;
+	
+	private ExecutorService executorPool;
 	
 	/**
 	 * Creates a new Nuber region
@@ -28,8 +36,11 @@ public class NuberRegion {
 	 */
 	public NuberRegion(NuberDispatch dispatch, String regionName, int maxSimultaneousJobs)
 	{
-		
-
+		this.maxSimultaneousJobs = maxSimultaneousJobs;
+		this.regionName = regionName;
+		this.dispatch = dispatch;
+		this.isShutdown = false;
+		this.executorPool = Executors.newFixedThreadPool(this.maxSimultaneousJobs);
 	}
 	
 	/**
@@ -45,7 +56,15 @@ public class NuberRegion {
 	 */
 	public Future<BookingResult> bookPassenger(Passenger waitingPassenger)
 	{		
+		if (this.isShutdown) {
+			System.out.println("booking for " + waitingPassenger.name + " has ben rejected");
+			return null;
+		}
 		
+		Booking booking = new Booking(dispatch, waitingPassenger);
+		Future<BookingResult> result = executorPool.submit(booking);
+		
+		return result;
 	}
 	
 	/**
@@ -53,6 +72,7 @@ public class NuberRegion {
 	 */
 	public void shutdown()
 	{
+		executorPool.shutdown();
+		this.isShutdown = true;
 	}
-		
 }
