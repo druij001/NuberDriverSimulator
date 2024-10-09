@@ -60,7 +60,8 @@ public class NuberDispatch {
 	 */
 	public boolean addDriver(Driver newDriver)
 	{
-		return drivers.add(newDriver);
+		// Using offer instead of add to prevent capacity exception
+		return drivers.offer(newDriver);
 	}
 	
 	/**
@@ -112,7 +113,10 @@ public class NuberDispatch {
 		NuberRegion r = regions.get(region);
 		
 		//Return null if an invalid string was passed in
-		if(r == null) return null;
+		if(r == null) {
+			System.out.println("Oops. An invalid region was given for the booking. It has not been created");
+			return null;
+		}
 				
 		// Otherwise book the passenger in and return the result
 		return r.bookPassenger(passenger);
