@@ -42,9 +42,11 @@ public class NuberDispatch {
 		
 		// Create a HashMap of regions
 		this.logEvent(null, "Creating ".concat(String.valueOf(regionInfo.size()).concat(" regions")));
+		
 		for (Entry<String, Integer> r : regionInfo.entrySet()) {
 			this.regions.put(r.getKey(), new NuberRegion(this, r.getKey(), r.getValue()));
 		}	
+		
 		this.logEvent(null, "Done creating ".concat(String.valueOf(regionInfo.size()).concat(" regions")));
 	}
 	
@@ -58,9 +60,7 @@ public class NuberDispatch {
 	 */
 	public boolean addDriver(Driver newDriver)
 	{
-		boolean result = drivers.add(newDriver);
-		
-		return result;
+		return drivers.add(newDriver);
 	}
 	
 	/**

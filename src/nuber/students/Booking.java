@@ -72,6 +72,7 @@ public class Booking implements Callable<BookingResult>{
 		Driver driver = null;
 		LocalDateTime startTime = getCurrentTimestamp();
 		
+			// Attempt to get driver
 			try {
 				dispatch.logEvent(this, "Starting booking, getting driver");
 				driver = this.dispatch.getDriver();
@@ -84,7 +85,7 @@ public class Booking implements Callable<BookingResult>{
 		
 		// Pick up passenger (cancel trip if thread is interrupted)
 		try {
-			dispatch.logEvent(this, "Starting, on way to passenger");
+			dispatch.logEvent(this, "Driving, on way to passenger");
 			driver.pickUpPassenger(this.passenger);
 		} catch (InterruptedException e) {
 			dispatch.logEvent(this, "The booking was interrupted while picking up the passenger");
@@ -107,14 +108,12 @@ public class Booking implements Callable<BookingResult>{
 		// Driver has arrived at destination
 		LocalDateTime endTime = getCurrentTimestamp();
 		long totalTime = Duration.between(startTime, endTime).toMillis();
-		
+		dispatch.logEvent(this, "At destination, driver is now free");
+
 		// Add the driver back to the dispatch
 		dispatch.addDriver(driver);
-		BookingResult br = new BookingResult(id, this.passenger, driver, totalTime);
-
-		dispatch.logEvent(this, "At destination, driver is now free");
-				
-		return br;
+		
+		return new BookingResult(id, this.passenger, driver, totalTime);
 	}
 	
 	private LocalDateTime getCurrentTimestamp() {
@@ -135,8 +134,8 @@ public class Booking implements Callable<BookingResult>{
 	public String toString()
 	{	
 		String returnString = "";
-		returnString = returnString.concat(String.valueOf(this.id)).concat(" : ");
-		returnString = returnString.concat(this.driverName == null ? "null" : this.driverName).concat(" : ");
+		returnString = returnString.concat(String.valueOf(this.id)).concat(":");
+		returnString = returnString.concat(this.driverName == null ? "null" : this.driverName).concat(":");
 		returnString = returnString.concat(this.passenger.name == null ? "null" : this.passenger.name);
 		return returnString;
 	}
