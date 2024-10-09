@@ -1,12 +1,11 @@
 package nuber.students;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The core Dispatch class that instantiates and manages everything for Nuber
@@ -24,7 +23,7 @@ public class NuberDispatch {
 	private boolean logEvents = false;
 	private HashMap<String, NuberRegion> regions;
 	private BlockingQueue<Driver> drivers;
-	private int bookingsAwaitingDriver;
+	private AtomicInteger bookingsAwaitingDriver;
 	
 	/**
 	 * Creates a new dispatch objects and instantiates the required regions and any other objects required.
@@ -38,7 +37,7 @@ public class NuberDispatch {
 		this.logEvents = logEvents;
 		this.regions = new HashMap<String, NuberRegion>();
 		this.drivers = new ArrayBlockingQueue<Driver>(MAX_DRIVERS);
-		this.bookingsAwaitingDriver = 0;
+		this.bookingsAwaitingDriver = new AtomicInteger(0);
 		
 		// Create a HashMap of regions
 		this.logEvent(null, "Creating ".concat(String.valueOf(regionInfo.size()).concat(" regions")));
@@ -74,11 +73,12 @@ public class NuberDispatch {
 	 */
 	public Driver getDriver() throws InterruptedException
 	{
-		this.bookingsAwaitingDriver ++;
+		this.bookingsAwaitingDriver.incrementAndGet();
 
 		Driver d = this.drivers.take();
 		
-		this.bookingsAwaitingDriver --;
+        this.bookingsAwaitingDriver.getAndDecrement();
+		
 		return d;
 	}
 
@@ -131,7 +131,7 @@ public class NuberDispatch {
 	 */
 	public int getBookingsAwaitingDriver()
 	{
-		return bookingsAwaitingDriver;
+		return bookingsAwaitingDriver.getAcquire();
 	}
 	
 	/**

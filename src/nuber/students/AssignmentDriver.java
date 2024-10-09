@@ -64,11 +64,11 @@ public class AssignmentDriver {
 		//once you have the above running, you should be able to uncomment the Simulations below to start to put everything together
 		
 		HashMap<String, Integer> regions = new HashMap<String, Integer>();
-		regions.put("North", 50);
-		regions.put("South", 50);
+		regions.put("North", 400);
+		regions.put("South", 400);
 		
 		//new Simulation(regions, 1, 10, 1000, logEvents);
-		//new Simulation(regions, 5, 10, 2000, logEvents);
+		new Simulation(regions, 5, 10, 2000, logEvents);
 		//new Simulation(regions, 10, 10, 1000, logEvents);
 		//new Simulation(regions, 10, 100, 1000, logEvents);
 		//new Simulation(regions, 1, 50, 1000, logEvents);
@@ -77,7 +77,7 @@ public class AssignmentDriver {
 		//new Simulation(regions, 1, 2, 20, logEvents);
 		//new Simulation(regions, 0, 2, 20, logEvents);
 		//new Simulation(regions, 2000, 2, 20, logEvents);
-		//new Simulation(regions, 2000, 2000, 100, logEvents);
+		new Simulation(regions, 200, 2000, 500, false);
 	}
 
 }

@@ -81,7 +81,7 @@ public class Booking implements Callable<BookingResult>{
 			} catch(InterruptedException e) {
 				dispatch.logEvent(this, "The booking was interrupted while waiting for a driver");
 			}
-			
+
 		
 		// Pick up passenger (cancel trip if thread is interrupted)
 		try {
