@@ -67,17 +67,16 @@ public class AssignmentDriver {
 		regions.put("North", 400);
 		regions.put("South", 400);
 		
-		//new Simulation(regions, 1, 10, 1000, logEvents);
-		new Simulation(regions, 5, 10, 2000, logEvents);
-		//new Simulation(regions, 10, 10, 1000, logEvents);
-		//new Simulation(regions, 10, 100, 1000, logEvents);
-		//new Simulation(regions, 1, 50, 1000, logEvents);
-		//new Simulation(regions, 5, 10, 10000, logEvents);
-		//new Simulation(regions, 5, 1000, 20, logEvents);
-		//new Simulation(regions, 1, 2, 20, logEvents);
-		//new Simulation(regions, 0, 2, 20, logEvents);
-		//new Simulation(regions, 2000, 2, 20, logEvents);
-		new Simulation(regions, 200, 2000, 500, false);
+		//new Simulation(regions, 1, 10, 1000, logEvents); // 1 driver
+		//new Simulation(regions, 5, 10, 2000, logEvents); // 5 drivers
+		//new Simulation(regions, 10, 10, 1000, logEvents); // same drivers as passengers
+		//new Simulation(regions, 10, 100, 1000, logEvents); // significantly more drivers than passengers
+		//new Simulation(regions, 1, 50, 500, logEvents); // 1 driver attempting 50 passengers
+		//new Simulation(regions, 5, 10, 10000, logEvents); // loooong delays
+		new Simulation(regions, 5, 1000, 200, logEvents); // short delay & lots of passengers
+		//new Simulation(regions, 0, 2, 20, logEvents); // no drivers
+		//new Simulation(regions, 2000, 2, 20, logEvents); // lots of drivers and only a couple of passengers
+		//new Simulation(regions, 200, 2000, 500, false); // higher density simulation
 	}
 
 }
