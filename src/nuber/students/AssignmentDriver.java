@@ -64,19 +64,19 @@ public class AssignmentDriver {
 		//once you have the above running, you should be able to uncomment the Simulations below to start to put everything together
 		
 		HashMap<String, Integer> regions = new HashMap<String, Integer>();
-		regions.put("North", 400);
-		regions.put("South", 400);
+		regions.put("North", 100);
+		regions.put("South", 100);
 		
 		//new Simulation(regions, 1, 10, 1000, logEvents); // 1 driver
-		//new Simulation(regions, 5, 10, 2000, logEvents); // 5 drivers
+		new Simulation(regions, 5, 10, 2000, logEvents); // 5 drivers
 		//new Simulation(regions, 10, 10, 1000, logEvents); // same drivers as passengers
 		//new Simulation(regions, 10, 100, 1000, logEvents); // significantly more drivers than passengers
 		//new Simulation(regions, 1, 50, 500, logEvents); // 1 driver attempting 50 passengers
 		//new Simulation(regions, 5, 10, 10000, logEvents); // loooong delays
-		new Simulation(regions, 5, 1000, 200, logEvents); // short delay & lots of passengers
+		//new Simulation(regions, 5, 5000, 2, false); // short delay & lots more passengers than drivers
 		//new Simulation(regions, 0, 2, 20, logEvents); // no drivers
 		//new Simulation(regions, 2000, 2, 20, logEvents); // lots of drivers and only a couple of passengers
-		//new Simulation(regions, 200, 2000, 500, false); // higher density simulation
+		//new Simulation(regions, 400, 2000, 500, false); // more drivers than area limits
 	}
 
 }

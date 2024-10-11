@@ -24,6 +24,7 @@ public class NuberDispatch {
 	private HashMap<String, NuberRegion> regions;
 	private BlockingQueue<Driver> drivers;
 	private AtomicInteger bookingsAwaitingDriver;
+	private boolean isShutdown;
 	
 	/**
 	 * Creates a new dispatch objects and instantiates the required regions and any other objects required.
@@ -73,11 +74,9 @@ public class NuberDispatch {
 	 */
 	public Driver getDriver() throws InterruptedException
 	{
-		this.bookingsAwaitingDriver.incrementAndGet();
-
 		Driver d = this.drivers.take();
 		
-        this.bookingsAwaitingDriver.getAndDecrement();
+        this.bookingsAwaitingDriver.decrementAndGet();
 		
 		return d;
 	}
@@ -117,7 +116,14 @@ public class NuberDispatch {
 			System.out.println("Oops. An invalid region was given for the booking. It has not been created");
 			return null;
 		}
-				
+		
+		if(this.isShutdown == true) {
+			System.out.println("Passenger " + passenger.name + "was not added because the system has been shutdown");
+			return null;
+		}
+		
+		this.bookingsAwaitingDriver.incrementAndGet();
+
 		// Otherwise book the passenger in and return the result
 		return r.bookPassenger(passenger);
 	}
@@ -131,7 +137,7 @@ public class NuberDispatch {
 	 */
 	public int getBookingsAwaitingDriver()
 	{
-		return bookingsAwaitingDriver.getAcquire();
+		return bookingsAwaitingDriver.get();
 	}
 	
 	/**
@@ -139,6 +145,8 @@ public class NuberDispatch {
 	 */
 	public void shutdown() {
 		this.logEvent(null, "The system is shutting down");
+		this.isShutdown = true;
+		
 		for (Entry<String, NuberRegion> r : this.regions.entrySet()) {
 			r.getValue().shutdown();
 		}

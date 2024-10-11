@@ -23,7 +23,6 @@ public class NuberRegion {
 	private int maxSimultaneousJobs;
 	private NuberDispatch dispatch;
 	public String regionName;
-	private boolean isShutdown;
 	
 	private ExecutorService executorPool;
 	
@@ -39,7 +38,6 @@ public class NuberRegion {
 		this.maxSimultaneousJobs = maxSimultaneousJobs;
 		this.regionName = regionName;
 		this.dispatch = dispatch;
-		this.isShutdown = false;
 		this.executorPool = Executors.newFixedThreadPool(this.maxSimultaneousJobs);
 	}
 	
@@ -56,11 +54,6 @@ public class NuberRegion {
 	 */
 	public Future<BookingResult> bookPassenger(Passenger waitingPassenger)
 	{		
-		if (this.isShutdown) {
-			this.dispatch.logEvent(null, "booking for " + waitingPassenger.name + " has ben rejected");
-			return null;
-		}
-		
 		Booking booking = new Booking(dispatch, waitingPassenger);
 		Future<BookingResult> result = executorPool.submit(booking);
 		
@@ -74,6 +67,5 @@ public class NuberRegion {
 	{
 		this.dispatch.logEvent(null, this.regionName + " is shutting down");
 		executorPool.shutdown();
-		this.isShutdown = true;
 	}
 }
